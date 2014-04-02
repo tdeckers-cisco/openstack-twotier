@@ -1,16 +1,16 @@
 ---
 # file: site.yml
-- hosts: web
+- hosts: admin
   roles:
     - common
-    - web
+    - admin
     
 - hosts: app
   roles:
     - common
     - app
 
-- hosts: admin
+- hosts: web
   roles:
     - common
-    - admin
+    - web

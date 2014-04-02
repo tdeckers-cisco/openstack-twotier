@@ -21,7 +21,7 @@ http {
   proxy_set_header   Host \$http_host;
   upstream my-backend {
     {% for host in groups['app'] %}
-      server {{ host.ansible_default_ipv4.address }}:9000;
+      server {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}:9000;
     {% endfor %}
   }
   server {

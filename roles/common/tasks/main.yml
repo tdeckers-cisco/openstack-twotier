@@ -1,0 +1,5 @@
+---
+- name: Copy EPEL repo file
+  copy: src=epel.repo dest=/etc/yum.repos.d
+- name: Copy EPEL key file
+  copy: src=RPM-GPG-KEY-EPEL-6 dest=/etc/pki/rpm-gpg

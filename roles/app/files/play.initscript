@@ -16,59 +16,61 @@
 #
 # Remember, you need python 2.6 to run the play command, it doesn't come standard with RedHat/Centos 5.5
 # Also, you may want to temporarily remove the >/dev/null for debugging purposes
- 
+
 # Path to play install folder
 PLAY_HOME=/opt/play
 PLAY=$PLAY_HOME/play
- 
+
 # Source function library.
 . /etc/rc.d/init.d/functions
 
 # Path to the JVM
 JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/
 export JAVA_HOME
- 
+
 # User running the Play process
 USER=root
- 
+
 # Path to the application
 APPLICATION_PATH=/opt/play/samples/java/helloworld
 APPLICATION_MODE=prod
- 
+
+PIDFILE=${APPLICATION_PATH}/target/universal/stage/RUNNING_PID
+
 # source function library
 . /etc/init.d/functions
 RETVAL=0
- 
-start() {
-	echo -n "Starting Play service: "
-	daemon "$APPLICATION_PATH/target/start >/dev/null &"
-	RETVAL=$?
 
-	if [ $RETVAL -eq 0 ]; then
-		echo_success
-	else
-		echo_failure
-	fi
-	echo
+start() {
+        echo -n "Starting Play service: "
+        daemon "$APPLICATION_PATH/target/universal/stage/bin/helloworld >/dev/null &"
+        RETVAL=$?
+
+        if [ $RETVAL -eq 0 ]; then
+                echo_success
+        else
+                echo_failure
+        fi
+        echo
 }
 stop() {
-	echo -n "Shutting down Play service: "
+        echo -n "Shutting down Play service: "
         (cd ${APPLICATION_PATH} ; ${PLAY} stop .)
 
-	RETVAL=$?
- 
-	if [ $RETVAL -eq 0 ]; then
-		echo_success
-	else
-		echo_failure
-	fi
-	echo
+        RETVAL=$?
+
+        if [ $RETVAL -eq 0 ]; then
+                echo_success
+        else
+                echo_failure
+        fi
+        echo
 }
 status() {
-        test -f ${APPLICATION_PATH}/RUNNING_PID
+        test -f ${PIDFILE}
         RETVAL=$?
         if [ $RETVAL -eq 0 ]; then
-                echo play is running as pid `cat ${APPLICATION_PATH}/RUNNING_PID`
+                echo play is running as pid `cat ${PIDFILE}`
         else
                 echo play is not running
         fi
@@ -77,25 +79,25 @@ clean() {
         rm -f ${APPLICATION_PATH}/RUNNING_PID
 }
 case "$1" in
-	start)
-	clean
-	start
-	;;
-	stop)
-	stop
-	;;
-	restart|reload)
-	stop
-	sleep 10
-	start
-	;;
-	status)
-	status
-	;;
-	clean)
-	clean
-	;;
-	*)
-	echo "Usage: $0 {start|stop|restart|status}"
+        start)
+        clean
+        start
+        ;;
+        stop)
+        stop
+        ;;
+        restart|reload)
+        stop
+        sleep 10
+        start
+        ;;
+        status)
+        status
+        ;;
+        clean)
+        clean
+        ;;
+        *)
+        echo "Usage: $0 {start|stop|restart|status}"
 esac
 exit 0

@@ -1,20 +1,31 @@
 ---
 - name: install java
   yum: name=java-1.7.0-oracle-devel state=present
+  
 - name: fetch play files
   get_url: dest=/opt/play-2.2.2.zip url=http://downloads.typesafe.com/play/2.2.2/play-2.2.2.zip
+  
 - name: install unzip
   yum: name=unzip state=latest
+  
 - name: install play framework
   command: chdir=/opt/ unzip play-2.2.2.zip
            creates=/opt/play-2.2.2/play
+           
 - name: create symlink
   file: src=/opt/play-2.2.2/ path=/opt/play state=link
+  
 - name: build app
   shell: chdir=/opt/play/samples/java/helloworld /opt/play/play clean compile stage
          creates=/opt/play/samples/java/helloworld/target
+  notify: restart play
+  
 - name: install init script for play
   copy: src=play.initscript dest=/etc/init.d/play mode=0755
+  notify: restart play
+  
+- name: start play
+  service: name=play state=started enabled=yes
 
  
   

@@ -1,0 +1,88 @@
+#!highlight yaml
+---
+heat_template_version: 2013-05-23
+
+description: >
+  Two-tier application example.
+
+parameters:
+  key_name:
+    type: string
+    description: Name of keypair to assign to servers
+    default: cloud
+
+  private_subnet_id:
+    type: string
+    description: the id of the private subnet to host application.
+    default: 
+
+resources:
+  app1:
+    type: AWS::EC2::Instance
+    metadata:
+      group: app
+    properties: 
+      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
+      InstanceType: GP-Small
+      KeyName: { get_param: key_name }
+      SubnetId: { get_param: private_subnet_id }
+
+  app2:
+    type: AWS::EC2::Instance
+    metadata:
+      group: app
+    properties: 
+      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
+      InstanceType: GP-Small
+      KeyName: { get_param: key_name }
+      SubnetId: { get_param: private_subnet_id }
+
+  web1:
+    type: AWS::EC2::Instance
+    metadata:
+      group: web
+    properties: 
+      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
+      InstanceType: GP-Small
+      KeyName: { get_param: key_name }
+      SubnetId: { get_param: private_subnet_id }
+    depends_on: [ app1, app2 ]
+
+  web2:
+    type: AWS::EC2::Instance
+    metadata:
+      group: web
+    properties: 
+      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
+      InstanceType: GP-Small
+      KeyName: { get_param: key_name }
+      SubnetId: { get_param: private_subnet_id }
+    depends_on: [ app1, app2 ]
+
+#  lbpool:
+#    type: OS::Neutron::Pool
+#    properties:
+#      lb_method: ROUND_ROBIN
+#      name: webtier
+#      protocol: HTTP
+#      subnet_id: { get_resource: subnet }
+#      vip: { "address": 192.168.10.50, "protocol_port": 80 }
+
+#  lb:
+#    type: OS::Neutron::LoadBalancer
+#    properties:
+#      members: [ { get_resource: web1 }, { get_resource: web2 } ]
+#      pool_id: { get_resource: lbpool }
+#      protocol_port: 80
+
+#  ip:
+#    type: OS::Neutron::FloatingIP
+#    properties:
+#      floating_network_id: 85abca57-4d2d-43b5-bcd3-eee47f619af8
+
+  # See: https://ask.openstack.org/en/question/7344/heat-and-get_attr-function/
+#  ipassoc:
+#    type: OS::Neutron::FloatingIPAssociation
+#    properties:
+#     floatingip_id: { get_resource: ip }
+#      port_id: {"Fn::Select": [ port_id, { get_attr: [ lbpool, vip]}]}

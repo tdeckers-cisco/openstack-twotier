@@ -1,0 +1,88 @@
+#!highlight yaml
+---
+heat_template_version: 2013-05-23
+
+description: >
+  Admin setup.  Prerequisite before application environments can be setup
+
+parameters:
+  key_name:
+    type: string
+    description: Name of keypair to assign to servers
+    default: cloud
+
+  service_net_id:
+    type: string
+    description: the id of the service-net subnet (for access to admin host)
+    default: 25054211-1e58-47c2-85af-0f05c7b60887
+
+  public_floating_id:
+    type: string
+    description: the id of the public-floating subnet
+    default: 85abca57-4d2d-43b5-bcd3-eee47f619af8
+
+resources:
+  network:
+    type: OS::Neutron::Net
+    properties:
+      name: private    
+
+  subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      allocation_pools: # requires yaml lists
+        - start: 192.168.10.100
+          end: 192.168.10.200
+      cidr: 192.168.10.0/24
+      enable_dhcp: Yes
+      name: priv2-subnet
+      network_id: {get_resource: network}
+
+  # Ensure internet connectivity
+  routergw:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: subnet }
+
+  router: # Note: can only create a single router! Support option to provide router name?
+    type: OS::Neutron::Router
+    condition: test
+    properties:
+      name: router
+
+  gateway:
+    type: OS::Neutron::RouterGateway
+    condition: test
+    properties:
+      network_id: { get_param: public_floating_id }
+      router_id: {get_resource: router}
+
+  adminnic1:
+    type: AWS::EC2::NetworkInterface
+    properties:      
+      SubnetId: { get_param: service_net_id }
+
+  adminnic2:
+    type: AWS::EC2::NetworkInterface
+    properties:
+      SubnetId: { get_resource: subnet }
+
+  # admin host:
+  # * dual nic, service-net being the first
+  # * UserData:
+  #   - enable NIC2
+  #   - run: https://gist.github.com/tdeckers-cisco/df556b0687ba2cdc154f
+  #     (bootstrap (ansible-pull))
+  admin:
+    type: AWS::EC2::Instance
+    metadata:
+      group: admin
+    properties:
+      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
+      InstanceType: GP-Small
+      KeyName: { get_param: key_name }
+      NetworkInterfaces: [ { NetworkInterfaceId: { get_resource: adminnic1 }, DeviceIndex: 0 },
+        { NetworkInterfaceId: { get_resource: adminnic2 }, DeviceIndex: 1 }]
+      UserData: |
+        #include https://gist.githubusercontent.com/tdeckers-cisco/df556b0687ba2cdc154f/raw/cloudinit-admin.sh

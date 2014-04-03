@@ -17,44 +17,40 @@ parameters:
 resources:
   app1:
     type: AWS::EC2::Instance
-    metadata:
-      group: app
     properties: 
       ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
       InstanceType: GP-Small
       KeyName: { get_param: key_name }
       SubnetId: { get_param: private_subnet_id }
+      Tags: [ { "Key": group, "Value": app} ]
 
   app2:
     type: AWS::EC2::Instance
-    metadata:
-      group: app
     properties: 
       ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
       InstanceType: GP-Small
       KeyName: { get_param: key_name }
       SubnetId: { get_param: private_subnet_id }
+      Tags: [ { "Key": group, "Value": app} ]
 
   web1:
     type: AWS::EC2::Instance
-    metadata:
-      group: web
     properties: 
       ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
       InstanceType: GP-Small
       KeyName: { get_param: key_name }
       SubnetId: { get_param: private_subnet_id }
+      Tags: [ { "Key": group, "Value": web} ]
     depends_on: [ app1, app2 ]
 
   web2:
     type: AWS::EC2::Instance
-    metadata:
-      group: web
     properties: 
       ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
       InstanceType: GP-Small
       KeyName: { get_param: key_name }
       SubnetId: { get_param: private_subnet_id }
+      Tags: [ { "Key": group, "Value": web} ]
     depends_on: [ app1, app2 ]
 
 #  lbpool:

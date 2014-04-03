@@ -9,12 +9,10 @@ parameters:
   key_name:
     type: string
     description: Name of keypair to assign to servers
-    default: cloud
 
   private_subnet_id:
     type: string
-    description: the id of the private subnet to host application.
-    default: 
+    description: the id of the private subnet to host application. 
 
 resources:
   app1:

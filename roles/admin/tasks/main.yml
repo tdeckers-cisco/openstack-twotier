@@ -1,3 +1,7 @@
 ---
 - name: generate ssh key
   shell: ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" creates=/root/.ssh/id_rsa
+- name: add generated pub key to known_hosts
+  shell: cat /root/.ssh/id_rsa.pub >> /root/.ssh/known_hosts
+- name: configure ansible
+  copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg state=file

@@ -5,6 +5,6 @@
   shell: cat /root/.ssh/authorized_keys
   register: keys
 - name: add generated pub key to authorized hosts
-  lineinfile: dest=/root/.ssh/authorized_keys line={{keys.stdout}} state=present create=yes 
+  lineinfile: dest=/root/.ssh/authorized_keys line='{{keys.stdout}}' state=present create=yes 
 - name: configure ansible
   copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg

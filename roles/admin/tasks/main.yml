@@ -2,7 +2,7 @@
 - name: generate ssh key
   shell: ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" creates=/root/.ssh/id_rsa
 - name: is our key already in authorized_keys?
-  shell: cat /root/.ssh/authorized_keys
+  shell: cat /root/.ssh/id_rsa.pub
   register: keys
 - name: add generated pub key to authorized hosts
   lineinfile: dest=/root/.ssh/authorized_keys line='{{keys.stdout}}' state=present create=yes 

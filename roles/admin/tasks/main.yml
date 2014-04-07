@@ -32,9 +32,9 @@
   with_items:
     - gcc
     - python-devel
-    - pip
-    - virtualenv
     - git
+- name: install pip
+  easy_install: name=pip 
 - name: install ansible
   pip: name=ansible state=present
 - name: ensure directory exists

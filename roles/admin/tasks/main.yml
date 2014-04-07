@@ -20,14 +20,37 @@
 #  nova_keypair: auth_url={{os_url}} name=admin state=present 
 #     login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
 #     public_key='{{keys.stdout}}'
-- name: configure ansible
-  copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg
+- name: install wget
+  yum: name=wget state=present
+- name: download EPEL
+  get_url: url=http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+           dest=/usr/local/src/epel-release-6-8.noarch.rpm
+- name: install epel
+  shell: rpm -ivh /usr/local/src/epel-release-6-8.noarch.rpm creates=/etc/yum.repos.d/epel.repo
+- name: install packages
+  yum: name={{ item }} state=present
+  with_items
+    - gcc
+    - python-devel
+    - pip
+    - virtualenv
+    - git
+- name: install ansible
+  pip: name=ansible state=present
 - name: ensure directory exists
   file: path=/etc/ansible/lib/inventory state=directory
+- name: configure ansible
+  copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg
 - name: copy nova.py dynamic inventory script for ansible
   copy: dest=/etc/ansible/lib/inventory/nova.py src=nova.py
-- name: create symlink to from hsots to nova.py (dynamic inventory script)
+- name: create symlink to from hosts to nova.py (dynamic inventory script)
   file: path=/etc/ansible/hosts src=/etc/ansible/lib/inventory/nova.py 
         state=link mode=0755
 - name: copy config file for nova.py
   template: dest=/etc/ansible/nova.ini src=nova.ini
+- name: install openstack clients
+  pip: name={{ item }} state=present
+  with_items:
+    - python-novaclient
+    - python-heatclient
+    - python-neutronclient

@@ -88,26 +88,3 @@ resources:
         ONBOOT=yes
         EOF
         ifup eth1
-
-        # take a breath before getting into network action.
-        sleep 20 # seconds.
-         
-        # INSTALLING EPEL
-        yum -y install wget
-        wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-        mv -n epel-release-6-8.noarch.rpm //usr/local/src
-        rpm -ivh /usr/local/src/epel-release-6-8.noarch.rpm
-         
-        # INSTALL ANSIBLE (for managing rest of our hosts)
-        easy_install pip
-        yum -y install gcc python-devel
-        pip install ansible
-        mkdir /etc/ansible
-         
-        # ADD ANSIBLE INVENTORY PLUGIN
-        pip install python-novaclient # requires novaclient
-        pip install python-heatclient
-        pip install python-neutronclient
-         
-        # INSTALL GIT
-        yum -y install git

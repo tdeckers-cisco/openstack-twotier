@@ -1,7 +1,7 @@
 ---
 - name: message when Openstack environment variables are not set!
   fail: msg="Openstack environment variables not set."
-  when: os_user is not defined
+  when: os_user is not defined or os_user == ""
 - name: generate ssh key
   shell: ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" creates=/root/.ssh/id_rsa
   register: keygen

@@ -1,10 +1,14 @@
 ---
 - name: generate ssh key
   shell: ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" creates=/root/.ssh/id_rsa
-- name: is our key already in authorized_keys?
+- name: read public key
   shell: cat /root/.ssh/id_rsa.pub
   register: keys
 - name: add generated pub key to authorized hosts
   lineinfile: dest=/root/.ssh/authorized_keys line='{{keys.stdout}}' state=present create=yes 
+- name: add generated pub key to Openstack
+  nova_keypair: auth_url=https://us-rdu-1.cisco.com:8774/v2 name=admin state=present 
+     login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
+     public_key='{{keys.stdout}}'
 - name: configure ansible
   copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg

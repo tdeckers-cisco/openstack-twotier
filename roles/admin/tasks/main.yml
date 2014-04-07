@@ -22,6 +22,8 @@
 #     public_key='{{keys.stdout}}'
 - name: configure ansible
   copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg
+- name: ensure directory exists
+  file: path=/etc/ansible/lib/inventory state=directory
 - name: copy nova.py dynamic inventory script for ansible
   copy: dest=/etc/ansible/lib/inventory/nova.py src=nova.py
 - name: create symlink to from hsots to nova.py (dynamic inventory script)

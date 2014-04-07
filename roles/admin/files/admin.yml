@@ -61,10 +61,11 @@ resources:
   # admin host:
   # * dual nic, service-net being the first
   #   (Use OS::Nova::Server, AWS variant doesn't like dual NICs)
-  # * UserData:
+  # * user data:
   #   - enable NIC2
-  #   - run: https://gist.github.com/tdeckers-cisco/df556b0687ba2cdc154f
-  #     (bootstrap (ansible-pull))
+  #   - install useful packages (EPEL)
+  #   - install ansible for config management
+  #   - install openstack clients
   admin:
     type: OS::Nova::Server
     properties:
@@ -107,13 +108,6 @@ resources:
         pip install python-novaclient # requires novaclient
         pip install python-heatclient
         pip install python-neutronclient
-        # Dynamic inventory file moved to ansible config.
-        # Bootstrap uses ansible-pull (see below)
-        # mkdir -p /etc/ansible/lib/inventory
-        # cd /etc/ansible/lib/inventory
-        # wget https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/nova.py
-        # link /etc/ansible/hosts -> nova.py (ansible will fetch list of hosts from there)
-        # nova.py requires a nova.ini file to be present.
          
         # INSTALL GIT
         yum -y install git

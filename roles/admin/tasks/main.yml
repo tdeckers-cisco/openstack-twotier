@@ -29,7 +29,7 @@
   shell: rpm -ivh /usr/local/src/epel-release-6-8.noarch.rpm creates=/etc/yum.repos.d/epel.repo
 - name: install packages
   yum: name={{ item }} state=present
-  with_items
+  with_items:
     - gcc
     - python-devel
     - pip

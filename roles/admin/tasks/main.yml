@@ -7,7 +7,7 @@
 - name: add generated pub key to authorized hosts
   lineinfile: dest=/root/.ssh/authorized_keys line='{{keys.stdout}}' state=present create=yes 
 - name: add generated pub key to Openstack
-  nova_keypair: auth_url=https://us-rdu-1.cisco.com:8774/v2 name=admin state=present 
+  nova_keypair: auth_url={{os_url}} name=admin state=present 
      login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
      public_key='{{keys.stdout}}'
 - name: configure ansible

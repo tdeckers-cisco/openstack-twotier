@@ -2,4 +2,4 @@
 os_user: "{{ lookup('env', 'OS_USERNAME') }}"
 os_pwd: "{{ lookup('env', 'OS_PASSWORD_INPUT') }}"
 os_tenant: "{{ lookup('env', 'OS_TENANT_NAME') }}"
-os_url: https://us-rdu-1.cisco.com:8774/v2
+os_url: "{{ lookup('env', 'OS_AUTH_URL') }}"

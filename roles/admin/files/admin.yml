@@ -13,8 +13,8 @@ parameters:
 
   service_net_id:
     type: string
-    description: the id of the service-net subnet (for access to admin host)
-    default: 25054211-1e58-47c2-85af-0f05c7b60887
+    description: the id of the service-net (for access to admin host)
+    default: 9b5e09f7-1be3-4d1a-a65b-4cca1433ca79
 
   public_floating_id:
     type: string
@@ -35,7 +35,7 @@ resources:
           end: 192.168.10.200
       cidr: 192.168.10.0/24
       enable_dhcp: Yes
-      name: priv2-subnet
+      name: private-subnet
       network_id: {get_resource: network}
 
   # Ensure internet connectivity
@@ -58,31 +58,62 @@ resources:
       network_id: { get_param: public_floating_id }
       router_id: {get_resource: router}
 
-  adminnic1:
-    type: AWS::EC2::NetworkInterface
-    properties:      
-      SubnetId: { get_param: service_net_id }
-
-  adminnic2:
-    type: AWS::EC2::NetworkInterface
-    properties:
-      SubnetId: { get_resource: subnet }
-
   # admin host:
   # * dual nic, service-net being the first
+  #   (Use OS::Nova::Server, AWS variant doesn't like dual NICs)
   # * UserData:
   #   - enable NIC2
   #   - run: https://gist.github.com/tdeckers-cisco/df556b0687ba2cdc154f
   #     (bootstrap (ansible-pull))
   admin:
-    type: AWS::EC2::Instance
-    metadata:
-      group: admin
+    type: OS::Nova::Server
     properties:
-      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
-      InstanceType: GP-Small
-      KeyName: { get_param: key_name }
-      NetworkInterfaces: [ { NetworkInterfaceId: { get_resource: adminnic1 }, DeviceIndex: 0 },
-        { NetworkInterfaceId: { get_resource: adminnic2 }, DeviceIndex: 1 }]
-      UserData: |
-        #include https://gist.githubusercontent.com/tdeckers-cisco/df556b0687ba2cdc154f/raw/cloudinit-admin.sh
+      name: admin
+      image: 54bc392f-7489-4071-84c8-2753e7ffec54
+      flavor: GP-Small
+      key_name: { get_param: key_name }
+      metadata: { "group": "admin" }
+      networks:
+        - { network: { get_param: service_net_id }, uuid: { get_param: service_net_id } }
+        - { network: { get_resource: network }, uuid: { get_resource: network } }
+      user_data: |
+        #!/bin/bash
+        #
+        # ENABLE SECOND NIC
+        cat > /etc/sysconfig/network-scripts/ifcfg-eth1 <<EOF
+        DEVICE=eth1
+        TYPE=Ethernet
+        BOOTPROTO=dhcp
+        ONBOOT=yes
+        EOF
+        ifup eth1
+
+        # take a breath before getting into network action.
+        sleep 20 # seconds.
+         
+        # INSTALLING EPEL
+        yum -y install wget
+        wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+        mv -n epel-release-6-8.noarch.rpm //usr/local/src
+        rpm -ivh /usr/local/src/epel-release-6-8.noarch.rpm
+         
+        # INSTALL ANSIBLE (for managing rest of our hosts)
+        easy_install pip
+        yum -y install gcc python-devel
+        pip install ansible
+        mkdir /etc/ansible
+         
+        # ADD ANSIBLE INVENTORY PLUGIN
+        pip install python-novaclient # requires novaclient
+        pip install python-heatclient
+        pip install python-neutronclient
+        # Dynamic inventory file moved to ansible config.
+        # Bootstrap uses ansible-pull (see below)
+        # mkdir -p /etc/ansible/lib/inventory
+        # cd /etc/ansible/lib/inventory
+        # wget https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/nova.py
+        # link /etc/ansible/hosts -> nova.py (ansible will fetch list of hosts from there)
+        # nova.py requires a nova.ini file to be present.
+         
+        # INSTALL GIT
+        yum -y install git

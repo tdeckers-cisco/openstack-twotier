@@ -1,4 +1,7 @@
 ---
+- name: message when Openstack environment variables are not set!
+  fail: msg="Openstack environment variables not set."
+  when: os_user is not defined || os_user == ''
 - name: generate ssh key
   shell: ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" creates=/root/.ssh/id_rsa
   register: keygen
@@ -19,3 +22,10 @@
 #     public_key='{{keys.stdout}}'
 - name: configure ansible
   copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg
+- name: copy nova.py dynamic inventory script for ansible
+  copy: dest=/etc/ansible/lib/inventory/nova.py src=nova.py
+- name: create symlink to from hsots to nova.py (dynamic inventory script)
+  file: path=/etc/ansible/hosts src=/etc/ansible/lib/inventory/nova.py 
+        state=link mode=0755
+- name: copy config file for nova.py
+  template: dest=/etc/ansible/nova.ini src=nova.ini

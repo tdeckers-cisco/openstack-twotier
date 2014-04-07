@@ -1,14 +1,21 @@
 ---
 - name: generate ssh key
   shell: ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" creates=/root/.ssh/id_rsa
+  register: keygen
 - name: read public key
   shell: cat /root/.ssh/id_rsa.pub
-  register: keys
+  register: keys  
+#- name: delete generated pub key from authorized hosts if changed.
+#  todo: read old value in file and delete line 
+#- name: delete key from openstack when changed on filesystem
+#  nova_keypair: auth_url={{os_url}} name=admin state=absent 
+#     login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
 - name: add generated pub key to authorized hosts
   lineinfile: dest=/root/.ssh/authorized_keys line='{{keys.stdout}}' state=present create=yes 
-- name: add generated pub key to Openstack
-  nova_keypair: auth_url={{os_url}} name=admin state=present 
-     login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
-     public_key='{{keys.stdout}}'
+# Bug in nova_keypair: https://github.com/ansible/ansible/issues/5959
+#- name: add generated pub key to Openstack
+#  nova_keypair: auth_url={{os_url}} name=admin state=present 
+#     login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
+#     public_key='{{keys.stdout}}'
 - name: configure ansible
   copy: src=ansible.cfg dest=/etc/ansible/ansible.cfg

@@ -10,48 +10,56 @@ parameters:
     type: string
     description: Name of keypair to assign to servers
 
-  private_subnet_id:
+  private_net_id:
     type: string
-    description: the id of the private subnet to host application. 
+    description: the id of the private network to host application. 
 
 resources:
   app1:
-    type: AWS::EC2::Instance
-    properties: 
-      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
-      InstanceType: GP-Small
-      KeyName: { get_param: key_name }
-      SubnetId: { get_param: private_subnet_id }
-      Tags: [ { "Key": group, "Value": app} ]
+    type: OS::Nova::Server
+    properties:
+      name: app1
+      image: 54bc392f-7489-4071-84c8-2753e7ffec54
+      flavor: GP-Small
+      key_name: { get_param: key_name }
+      metadata: { "group": "app" }
+      networks: 
+      - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
 
   app2:
-    type: AWS::EC2::Instance
-    properties: 
-      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
-      InstanceType: GP-Small
-      KeyName: { get_param: key_name }
-      SubnetId: { get_param: private_subnet_id }
-      Tags: [ { "Key": group, "Value": app} ]
+    type: OS::Nova::Server
+    properties:
+      name: app2
+      image: 54bc392f-7489-4071-84c8-2753e7ffec54
+      flavor: GP-Small
+      key_name: { get_param: key_name }
+      metadata: { "group": "app" }
+      networks: 
+      - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
 
   web1:
-    type: AWS::EC2::Instance
+    type: OS::Nova::Server
     properties: 
-      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
-      InstanceType: GP-Small
-      KeyName: { get_param: key_name }
-      SubnetId: { get_param: private_subnet_id }
-      Tags: [ { "Key": group, "Value": web} ]
-    depends_on: [ app1, app2 ]
+     name: web1
+     image: 54bc392f-7489-4071-84c8-2753e7ffec54
+     flavor: GP-Small
+     key_name: { get_param: key_name }
+     metadata: { "group": "web" }
+     networks: 
+     - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+   depends_on: [ app1, app2 ]
 
   web2:
-    type: AWS::EC2::Instance
+    type: OS::Nova::Server
     properties: 
-      ImageId: 54bc392f-7489-4071-84c8-2753e7ffec54
-      InstanceType: GP-Small
-      KeyName: { get_param: key_name }
-      SubnetId: { get_param: private_subnet_id }
-      Tags: [ { "Key": group, "Value": web} ]
-    depends_on: [ app1, app2 ]
+     name: web2
+     image: 54bc392f-7489-4071-84c8-2753e7ffec54
+     flavor: GP-Small
+     key_name: { get_param: key_name }
+     metadata: { "group": "web" }
+     networks: 
+     - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+   depends_on: [ app1, app2 ]
 
 #  lbpool:
 #    type: OS::Neutron::Pool

@@ -58,6 +58,13 @@ resources:
       network_id: { get_param: public_floating_id }
       router_id: {get_resource: router}
 
+  keypair:
+    type: OS::Nova::KeyPair
+    properties:
+      name: admin
+      save_private_key: True
+    
+
   # admin host:
   # * dual nic, service-net being the first
   #   (Use OS::Nova::Server, AWS variant doesn't like dual NICs)
@@ -77,14 +84,31 @@ resources:
       networks:
         - { network: { get_param: service_net_id }, uuid: { get_param: service_net_id } }
         - { network: { get_resource: network }, uuid: { get_resource: network } }
-      user_data: |
-        #!/bin/bash
-        #
-        # ENABLE SECOND NIC
-        cat > /etc/sysconfig/network-scripts/ifcfg-eth1 <<EOF
-        DEVICE=eth1
-        TYPE=Ethernet
-        BOOTPROTO=dhcp
-        ONBOOT=yes
-        EOF
-        ifup eth1
+      user_data: 
+        str_replace:
+          template: |
+            #!/bin/bash
+            #
+            # ENABLE SECOND NIC
+            cat > /etc/sysconfig/network-scripts/ifcfg-eth1 <<EOF
+            DEVICE=eth1
+            TYPE=Ethernet
+            BOOTPROTO=dhcp
+            ONBOOT=yes
+            EOF
+            ifup eth1
+            cat > ~/private_net <<EOF
+            $private_net_id
+            EOF
+            cat > ~/.ssh/id_rsa <<EOF
+            $private_key
+            EOF
+            cat > ~/.ssh/id_rsa.pub <<EOF
+            $public_key
+            EOF            
+            # allow own certificate.
+            echo ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_hosts
+          params:
+            $private_net_id: { get_resource: network }
+            $private_key: { get_attr: [ keypair, private_key ] }
+            $public_key: { get_attr: [ keypair, public_key ] }

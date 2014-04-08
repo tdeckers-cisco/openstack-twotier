@@ -24,7 +24,7 @@ resources:
       key_name: { get_param: key_name }
       metadata: { "group": "app" }
       networks: 
-      - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+      - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
 
   app2:
     type: OS::Nova::Server
@@ -35,7 +35,7 @@ resources:
       key_name: { get_param: key_name }
       metadata: { "group": "app" }
       networks: 
-      - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+      - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
 
   web1:
     type: OS::Nova::Server
@@ -46,7 +46,7 @@ resources:
      key_name: { get_param: key_name }
      metadata: { "group": "web" }
      networks: 
-     - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+     - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
    depends_on: [ app1, app2 ]
 
   web2:
@@ -58,7 +58,7 @@ resources:
      key_name: { get_param: key_name }
      metadata: { "group": "web" }
      networks: 
-     - ( network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+     - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
    depends_on: [ app1, app2 ]
 
 #  lbpool:

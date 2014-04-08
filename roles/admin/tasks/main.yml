@@ -49,6 +49,11 @@
     - python-novaclient
     - python-heatclient
     - python-neutronclient
+  # Remove first (fails if not exists - which is ok)
+- name: remove keypair from Openstack before adding
+  shell: nova keypair-delete admin
+  when: keygen.changed
+  ignore_errors: yes
 - name: add generated pub key to Openstack 
 # Bug in nova_keypair: https://github.com/ansible/ansible/issues/5959
 #  nova_keypair: auth_url={{os_url}} name=admin state=present 

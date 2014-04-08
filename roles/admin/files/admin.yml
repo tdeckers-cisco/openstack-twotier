@@ -102,7 +102,7 @@ resources:
             EOF
             # INSTALL ANSIBLE (for managing rest of our hosts)
             easy_install pip
-            yum -y install gcc python-devel
+            yum -y install gcc python-devel git
             pip install ansible
             mkdir /etc/ansible            
             # Re-enable once OS::Nova:KeyPair support is added to Heat

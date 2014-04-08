@@ -15,11 +15,13 @@
 #     login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
 - name: add generated pub key to authorized hosts
   lineinfile: dest=/root/.ssh/authorized_keys line='{{keys.stdout}}' state=present create=yes 
+- name: add generated pub key to Openstack
 # Bug in nova_keypair: https://github.com/ansible/ansible/issues/5959
-#- name: add generated pub key to Openstack
 #  nova_keypair: auth_url={{os_url}} name=admin state=present 
 #     login_password={{os_pwd}} login_tenant_name={{os_tenant}} login_username={{os_user}}
 #     public_key='{{keys.stdout}}'
+  shell: nova keypair-add --pub-key ~/.ssh/id_rsa.pub admin
+  when: keygen.changed
 - name: install wget
   yum: name=wget state=present
 - name: download EPEL

@@ -58,11 +58,11 @@ resources:
       network_id: { get_param: public_floating_id }
       router_id: {get_resource: router}
 
-  keypair:
-    type: OS::Nova::KeyPair
-    properties:
-      name: admin
-      save_private_key: True
+#  keypair:
+#    type: OS::Nova::KeyPair
+#    properties:
+#      name: admin
+#      save_private_key: True
     
 
   # admin host:
@@ -100,15 +100,16 @@ resources:
             cat > ~/private_net <<EOF
             $private_net_id
             EOF
-            cat > ~/.ssh/id_rsa <<EOF
-            $private_key
-            EOF
-            cat > ~/.ssh/id_rsa.pub <<EOF
-            $public_key
-            EOF            
+            # Re-enable once OS::Nova:KeyPair support is added to Heat
+            #cat > ~/.ssh/id_rsa <<EOF
+            #$private_key
+            #EOF
+            #cat > ~/.ssh/id_rsa.pub <<EOF
+            #$public_key
+            #EOF            
             # allow own certificate.
             echo ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_hosts
           params:
             $private_net_id: { get_resource: network }
-            $private_key: { get_attr: [ keypair, private_key ] }
-            $public_key: { get_attr: [ keypair, public_key ] }
+            #$private_key: { get_attr: [ keypair, private_key ] }
+            #$public_key: { get_attr: [ keypair, public_key ] }

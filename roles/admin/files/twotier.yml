@@ -40,26 +40,26 @@ resources:
   web1:
     type: OS::Nova::Server
     properties: 
-     name: web1
-     image: 54bc392f-7489-4071-84c8-2753e7ffec54
-     flavor: GP-Small
-     key_name: { get_param: key_name }
-     metadata: { "group": "web" }
-     networks: 
-     - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
-   depends_on: [ app1, app2 ]
+      name: web1
+      image: 54bc392f-7489-4071-84c8-2753e7ffec54
+      flavor: GP-Small
+      key_name: { get_param: key_name }
+      metadata: { "group": "web" }
+      networks: 
+      - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+    depends_on: [ app1, app2 ]
 
   web2:
     type: OS::Nova::Server
     properties: 
-     name: web2
-     image: 54bc392f-7489-4071-84c8-2753e7ffec54
-     flavor: GP-Small
-     key_name: { get_param: key_name }
-     metadata: { "group": "web" }
-     networks: 
-     - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
-   depends_on: [ app1, app2 ]
+      name: web2
+      image: 54bc392f-7489-4071-84c8-2753e7ffec54
+      flavor: GP-Small
+      key_name: { get_param: key_name }
+      metadata: { "group": "web" }
+      networks: 
+      - { network: { get_param: private_net_id }, uuid: { get_param: private_net_id  } }
+    depends_on: [ app1, app2 ]
 
 #  lbpool:
 #    type: OS::Neutron::Pool

@@ -100,6 +100,11 @@ resources:
             cat > ~/private_net <<EOF
             $private_net_id
             EOF
+            # INSTALL ANSIBLE (for managing rest of our hosts)
+            easy_install pip
+            yum -y install gcc python-devel
+            pip install ansible
+            mkdir /etc/ansible            
             # Re-enable once OS::Nova:KeyPair support is added to Heat
             #cat > ~/.ssh/id_rsa <<EOF
             #$private_key

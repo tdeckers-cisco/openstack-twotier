@@ -104,7 +104,7 @@ resources:
             easy_install pip
             yum -y install gcc python-devel git
             pip install ansible
-            mkdir /etc/ansible            
+            mkdir /etc/ansible     
             # Re-enable once OS::Nova:KeyPair support is added to Heat
             #cat > ~/.ssh/id_rsa <<EOF
             #$private_key
@@ -112,8 +112,6 @@ resources:
             #cat > ~/.ssh/id_rsa.pub <<EOF
             #$public_key
             #EOF            
-            # allow own certificate.
-            echo ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_hosts
           params:
             $private_net_id: { get_resource: network }
             #$private_key: { get_attr: [ keypair, private_key ] }
